@@ -1,0 +1,95 @@
+#name space
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns
+
+---
+#création d'un pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  namespace: ns
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:latest
+      ports:
+       - containerPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: ns
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: ns
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+#deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-deployment
+  namespace: ns
+  labels:
+    app: hello
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+        - name: hello
+          image: azed01/k8s:hello
+          ports:
+            - containerPort: 80
+---
+#SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+  namespace: ns
+spec:
+  selector:
+    app: pink
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+  type: LoadBalancer
